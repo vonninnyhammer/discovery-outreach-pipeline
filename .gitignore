@@ -1,0 +1,14 @@
+# Git
+__pycache__/
+*.pyc
+.DS_Store
+
+# Local runtime state — never commit these
+config.py
+credentials.json
+token.json
+*.env
+.env
+
+# Pipeline output (drafts, dashboards, logged grants)
+output/
