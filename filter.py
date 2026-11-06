@@ -20,28 +20,33 @@ from config import (
 logger = logging.getLogger("grantbot.filter")
 
 
-def _check_geographic_eligibility(grant: Grant) -> bool:
-    """Check if the grant is geographically eligible for the configured area."""
+def _check_geographic_eligibility(grant: Grant) -> tuple[bool, bool]:
+    """Check geographic eligibility for the configured area.
+
+    Returns (eligible, verified). `verified` is True only when an affirmative
+    signal was found. The final fallthrough returns (True, False): no
+    disqualifying keyword is absence of evidence, not evidence of eligibility.
+    """
     text = f"{grant.description} {grant.name} {grant.funder}".lower()
     # Federal grants are generally eligible
     if grant.funder.lower() in ("federal", "usda rural development"):
-        return True
-    # State-level grants (matching the configured STATE)
-    if STATE.lower() in text or grant.source == "state_ded":
-        return True
+        return True, True
+    # State-level grants (matching the configured STATE as a whole word)
+    if re.search(rf"\b{re.escape(STATE.lower())}\b", text) or grant.source == "state_ded":
+        return True, True
     # Rural/distressed preference grants
     rural_signals = ["rural", "distressed", "underserved", "small community",
                      "economically disadvantaged", "rural area"]
     for signal in rural_signals:
         if signal in text:
-            return True
+            return True, True
     # Grants that don't mention geography are typically eligible
     geo_mentions = ["urban", "city only", "metropolitan", "large city",
                     "population over 500", "non-rural"]
     for mention in geo_mentions:
         if mention in text and "rural" not in text:
-            return False
-    return True
+            return False, False
+    return True, False
 
 
 def _check_exclusion(grant: Grant) -> tuple[bool, str]:
@@ -66,8 +71,13 @@ def _calculate_score(grant: Grant) -> float:
     """Calculate weighted match score (0-100)."""
     scores = {}
 
-    # Geographic match (20 pts)
-    scores["geographic_match"] = SCORING_WEIGHTS["geographic_match"] if _check_geographic_eligibility(grant) else 0
+    # Geographic match (20 pts) — unverified eligibility scores half credit
+    geo_ok, geo_ver = _check_geographic_eligibility(grant)
+    scores["geographic_match"] = (
+        SCORING_WEIGHTS["geographic_match"] if geo_ver
+        else SCORING_WEIGHTS["geographic_match"] * 0.5 if geo_ok
+        else 0
+    )
 
     # Category alignment (25 pts)
     if grant.category in TARGET_CATEGORIES:
@@ -149,7 +159,7 @@ def filter_and_score(grants: List[Grant]) -> List[Grant]:
             continue
 
         # Geographic eligibility
-        grant.geographic_eligible = _check_geographic_eligibility(grant)
+        grant.geographic_eligible, grant.geo_verified = _check_geographic_eligibility(grant)
         if not grant.geographic_eligible:
             logger.info(f"GEO-REJECTED: {grant.name}")
             continue

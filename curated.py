@@ -18,6 +18,8 @@ from models import Grant
 FEDERAL = [
     dict(
         id="curated-nsf-sbir-sttr",
+        realistic_award_usd=150000,
+        award_blocked_reason="Phase I at reduced scope; R&D track, does not fund general business building",
         name="NSF SBIR/STTR Phase I (AI/ML R&D)",
         funder="National Science Foundation",
         description=(
@@ -42,6 +44,8 @@ FEDERAL = [
     ),
     dict(
         id="curated-usda-rbdg",
+        realistic_award_usd=0,
+        award_blocked_reason="Nonprofit-only; entity filter excludes.",
         name="USDA Rural Business Development Grant (RBDG)",
         funder="USDA Rural Development",
         description=(
@@ -66,6 +70,8 @@ FEDERAL = [
     ),
     dict(
         id="curated-usda-reap",
+        realistic_award_usd=0,
+        award_blocked_reason="LOAN not grant. Grant component paused 2026 (EO 14315). Adds debt.",
         name="USDA REAP (Renewable Energy for America Program) — Loans",
         funder="USDA Rural Development",
         description=(
@@ -88,6 +94,8 @@ FEDERAL = [
     ),
     dict(
         id="curated-dol-reo",
+        realistic_award_usd=0,
+        award_blocked_reason="Nonprofit-only; entity filter excludes.",
         name="DOL Reentry Employment Opportunities (REO)",
         funder="U.S. Department of Labor (ETA)",
         description=(
@@ -111,6 +119,8 @@ FEDERAL = [
     ),
     dict(
         id="curated-dol-restart",
+        realistic_award_usd=0,
+        award_blocked_reason="Nonprofit-only; entity filter excludes.",
         name="DOL RESTART (Reentry, Skills, Training, And Reentry Transition)",
         funder="U.S. Department of Labor (ETA)",
         description=(
@@ -132,6 +142,8 @@ FEDERAL = [
     ),
     dict(
         id="curated-bja-sca-reentry-ed",
+        realistic_award_usd=0,
+        award_blocked_reason="Nonprofit/both; entity filter excludes.",
         name="BJA Second Chance Act: Improving Reentry Education & Employment",
         funder="Bureau of Justice Assistance (DOJ)",
         description=(
@@ -155,6 +167,8 @@ FEDERAL = [
     ),
     dict(
         id="curated-bja-sca-tech-careers",
+        realistic_award_usd=0,
+        award_blocked_reason="Nonprofit-only; entity filter excludes.",
         name="BJA Second Chance Act: Technology Careers Training",
         funder="Bureau of Justice Assistance (DOJ)",
         description=(
@@ -177,6 +191,8 @@ FEDERAL = [
     ),
     dict(
         id="curated-eda-pweaa",
+        realistic_award_usd=0,
+        award_blocked_reason="Nonprofit-only; entity filter excludes.",
         name="EDA Public Works & Economic Adjustment Assistance (PWEAA)",
         funder="U.S. Economic Development Administration",
         description=(
@@ -199,6 +215,8 @@ FEDERAL = [
     ),
     dict(
         id="curated-wotc",
+        realistic_award_usd=0,
+        award_blocked_reason="Terminated for separations after 2025-12-31 (OBBBA). No credits for new 2026 hires.",
         name="Work Opportunity Tax Credit (WOTC) — Ex-Felon & Youth",
         funder="IRS / DOL",
         description=(
@@ -221,6 +239,8 @@ FEDERAL = [
     ),
     dict(
         id="curated-federal-bonding",
+        realistic_award_usd=0,
+        award_blocked_reason="Fidelity bond guarantee, not cash. No cost for first 6 months.",
         name="Federal Bonding Program",
         funder="U.S. Department of Labor",
         description=(
@@ -242,6 +262,8 @@ FEDERAL = [
     ),
     dict(
         id="curated-solar-itc-elective-pay",
+        realistic_award_usd=0,
+        award_blocked_reason="Nonprofit-only; entity filter excludes.",
         name="Solar Investment Tax Credit — Elective Pay (IRA 6417)",
         funder="IRS",
         description=(
@@ -269,6 +291,8 @@ FEDERAL = [
 CORPORATE = [
     dict(
         id="curated-comcast-rise",
+        realistic_award_usd=5000,
+        award_blocked_reason="Cash portion only; ~$30k in-kind package. Geographic eligibility UNVERIFIED.",
         name="Comcast RISE",
         funder="Comcast",
         description=(
@@ -296,6 +320,8 @@ CORPORATE = [
     ),
     dict(
         id="curated-verizon-digital-ready",
+        realistic_award_usd=10000,
+        award_blocked_reason="Requires pre-registration on Verizon portal.",
         name="Verizon Small Business Digital Ready",
         funder="Verizon / LISC",
         description=(
@@ -320,6 +346,8 @@ CORPORATE = [
     ),
     dict(
         id="curated-hello-alice",
+        realistic_award_usd=10000,
+        award_blocked_reason="Low end of $5k-$25k range for a first-time applicant. Requires pre-registration.",
         name="Hello Alice Grants",
         funder="Hello Alice",
         description=(
@@ -342,6 +370,8 @@ CORPORATE = [
     ),
     dict(
         id="curated-amber-grant",
+        realistic_award_usd=0,
+        award_blocked_reason="Requires >=50% women ownership; set an award once the applicant is confirmed eligible.",
         name="Amber Grant",
         funder="WomensNet",
         description=(
@@ -364,6 +394,8 @@ CORPORATE = [
     ),
     dict(
         id="curated-nase-growth",
+        realistic_award_usd=4000,
+        award_blocked_reason="Requires paid NASE membership; membership fee offsets most of the award.",
         name="NASE Growth Grant",
         funder="National Association for the Self-Employed",
         description=(
@@ -384,6 +416,8 @@ CORPORATE = [
     ),
     dict(
         id="curated-fedex-grant-contest",
+        realistic_award_usd=500,
+        award_blocked_reason="CONTEST. $50k prize split across many entrants; probability-weighted EV approx $500.",
         name="FedEx Small Business Grant Contest",
         funder="FedEx",
         description=(
@@ -404,6 +438,8 @@ CORPORATE = [
     ),
     dict(
         id="curated-allstate-main-street",
+        realistic_award_usd=0,
+        award_blocked_reason="Requires $25,000+ prior-year revenue; a pre-revenue business is ineligible until Year 2+.",
         name="Allstate Main Street Grants",
         funder="Allstate",
         description=(
@@ -424,6 +460,8 @@ CORPORATE = [
     ),
     dict(
         id="curated-jobber-grants",
+        realistic_award_usd=10000,
+        award_blocked_reason="$250k pool / $100k top; typical award is materially smaller.",
         name="Jobber Grants",
         funder="Jobber",
         description=(
@@ -445,6 +483,8 @@ CORPORATE = [
     ),
     dict(
         id="curated-comcast-digital-equity",
+        realistic_award_usd=0,
+        award_blocked_reason="Nonprofit-only; entity filter excludes.",
         name="Comcast Digital Equity Grants (Project UP)",
         funder="Comcast",
         description=(
@@ -467,6 +507,8 @@ CORPORATE = [
     ),
     dict(
         id="curated-viapath-foundation",
+        realistic_award_usd=0,
+        award_blocked_reason="Nonprofit-only; entity filter excludes.",
         name="ViaPath Foundation Impact Grant",
         funder="ViaPath Foundation",
         description=(

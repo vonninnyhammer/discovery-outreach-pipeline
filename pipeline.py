@@ -80,6 +80,16 @@ async def run_pipeline(offline: bool = False):
     stats["qualified"] = len(qualified)
     stats["excluded"] = stats["total_discovered"] - len(qualified)
 
+    # Realistic cash picture. Only realistic_award_usd is summable —
+    # estimated_value carries pool sizes and award ceilings and must not be summed.
+    actionable = [g for g in qualified if g.application_ready]
+    live_cash = [g for g in actionable if (g.realistic_award_usd or 0) > 0]
+    stats["actionable"] = len(actionable)
+    stats["realistic_cash_total"] = sum(g.realistic_award_usd for g in live_cash)
+    stats["blocked_count"] = sum(1 for g in qualified if g.realistic_award_usd == 0)
+    stats["unassessed_count"] = sum(1 for g in qualified if g.realistic_award_usd is None)
+    stats["unverified_geo_count"] = sum(1 for g in qualified if not g.geo_verified)
+
     # Phase 3: DRAFT
     logger.info("[3/5] Generating compliance matrices and drafts...")
     drafts = generate_all_drafts(qualified)
@@ -123,10 +133,16 @@ async def run_pipeline(offline: bool = False):
     print(f"  Discovered:  {stats['total_discovered']}")
     print(f"  Qualified:   {stats['qualified']}")
     print(f"  Excluded:    {stats['excluded']}")
+    print(f"  Actionable:  {stats['actionable']}")
+    print(f"  Blocked:     {stats['blocked_count']} (no realistic cash)")
+    print(f"  Unassessed:  {stats['unassessed_count']} (no realistic award set)")
+    print(f"  Unverified geography: {stats['unverified_geo_count']}")
     print(f"  Drafts:      {stats['drafts_generated']}")
     print(f"  Calendar:    {stats['calendar_events']} events")
     print(f"  Dashboard:   {OUTPUT_DIR / 'grant_dashboard.md'}")
     print("=" * 60)
+    print(f"\nREALISTIC CASH (summable): ${stats['realistic_cash_total']:,}")
+    print("  NOTE: assumes every live grant is won. Not a forecast.")
 
     # Print top 5 to stdout
     print("\nTOP OPPORTUNITIES:")

@@ -15,12 +15,16 @@ from config import DASHBOARD_FILE, OUTPUT_DIR, HOLD_MODE
 logger = logging.getLogger("grantbot.dashboard")
 
 
+def _award(g: Grant) -> str:
+    if g.realistic_award_usd is None:
+        return "not assessed"
+    return f"${g.realistic_award_usd:,}" if g.realistic_award_usd > 0 else "**$0**"
+
+
 def render_dashboard(grants: List[Grant], stats: dict = None) -> str:
     """Render a complete Markdown dashboard."""
     now = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
-    total_value = "N/A"
-    if stats:
-        total_value = stats.get("total_estimated_value", "N/A")
+    stats = stats or {}
 
     if HOLD_MODE:
         hold_banner = (
@@ -41,19 +45,32 @@ def render_dashboard(grants: List[Grant], stats: dict = None) -> str:
         "",
         "## Pipeline Summary",
         "",
-        f"- **Total Discovered:** {stats.get('total_discovered', 'N/A') if stats else 'N/A'}",
-        f"- **Qualified (after filtering):** {stats.get('qualified', len(grants)) if stats else len(grants)}",
-        f"- **Excluded (safety filter):** {stats.get('excluded', 'N/A') if stats else 'N/A'}",
-        f"- **Total Estimated Value:** {total_value}",
-        f"- **Calendar Events Scheduled:** {stats.get('calendar_events', 'N/A') if stats else 'N/A'}",
-        f"- **Drafts Generated:** {stats.get('drafts_generated', len(grants)) if stats else len(grants)}",
+        f"- **Total Discovered:** {stats.get('total_discovered', 'N/A')}",
+        f"- **Qualified (after filtering):** {stats.get('qualified', len(grants))}",
+        f"- **Excluded (safety filter):** {stats.get('excluded', 'N/A')}",
+        f"- **Actionable Now:** {stats.get('actionable', 'N/A')}",
+        f"- **Blocked (no realistic cash):** {stats.get('blocked_count', 'N/A')}",
+        f"- **Not yet assessed:** {stats.get('unassessed_count', 'N/A')}",
+        f"- **Unverified Geography:** {stats.get('unverified_geo_count', 'N/A')} "
+        f"— passed by absence of a disqualifying keyword, not confirmed eligibility",
+        f"- **Calendar Events Scheduled:** {stats.get('calendar_events', 'N/A')}",
+        f"- **Drafts Generated:** {stats.get('drafts_generated', len(grants))}",
+        "",
+        "### Realistic Cash Available",
+        "",
+        f"- **All live grants (if every one is won):** ${stats.get('realistic_cash_total', 0):,}",
+        "",
+        "> This sums `realistic_award_usd` only — a defensible award to this "
+        "applicant. It does **not** sum the `Est. Value` column, which mixes "
+        "program pool sizes with award ceilings, and it assumes a 100% win rate, "
+        "which is not a forecast.",
         "",
         "---",
         "",
         "## Active Grant Opportunities",
         "",
-        "| # | Grant Name | Funder | Est. Value | Entity | Deadline | Ready | Next Cycle | Score |",
-        "|---|-----------|--------|-----------|--------|----------|-------|------------|-------|",
+        "| # | Grant Name | Funder | Est. Value (headline) | Realistic | Entity | Deadline | Ready | Geo | Score |",
+        "|---|-----------|--------|-----------|-----------|--------|----------|-------|-----|-------|",
     ]
 
     for i, g in enumerate(grants, 1):
@@ -62,13 +79,10 @@ def render_dashboard(grants: List[Grant], stats: dict = None) -> str:
         if deadline_display and len(deadline_display) > 12:
             deadline_display = deadline_display[:10]
         ready = "YES" if g.application_ready else "NO"
-        next_cycle = (g.next_cycle_deadline or "—")
-        if next_cycle and len(next_cycle) > 12:
-            next_cycle = next_cycle[:10]
         lines.append(
             f"| {i} | [{name}]({g.source_url}) | {g.funder[:22]} "
-            f"| {g.estimated_value[:14]} | {g.entity_target[:9]} "
-            f"| {deadline_display} | {ready} | {next_cycle} | {g.match_score} |"
+            f"| {g.estimated_value[:20]} | {_award(g)} | {g.entity_target[:9]} "
+            f"| {deadline_display} | {ready} | {'OK' if g.geo_verified else 'unver.'} | {g.match_score} |"
         )
 
     # ── Next Cycle Targets ────────────────────────────────
@@ -136,7 +150,10 @@ def render_dashboard(grants: List[Grant], stats: dict = None) -> str:
         lines.extend([
             f"### {g.name}",
             f"- **Funder:** {g.funder}",
-            f"- **Value:** {g.estimated_value}",
+            f"- **Headline Value:** {g.estimated_value}",
+            f"- **Realistic Award:** {_award(g)}",
+            *([f"- **Why:** {g.award_blocked_reason}"] if g.award_blocked_reason else []),
+            f"- **Geography:** {'verified' if g.geo_verified else 'UNVERIFIED — no disqualifying keyword found, eligibility not confirmed'}",
             f"- **Category:** {g.category}",
             f"- **Entity Target:** {g.entity_target}",
             f"- **Score:** {g.match_score}/100",

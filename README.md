@@ -41,6 +41,20 @@ Outputs land in `output/`:
 - `output/grants_db.json` — the deduplicated grant database
 - `output/grant_deadlines.ics` — ICS calendar fallback (no Google API needed)
 
+### Headline value vs. realistic cash
+
+A grant's `estimated_value` is whatever the funder advertises — often a pool size
+or a maximum award — so those figures are never added up. Each curated entry can
+also carry `realistic_award_usd`, a defensible award for this applicant, and an
+`award_blocked_reason` when that is $0 (loan rather than grant, nonprofit-only,
+revenue minimum, and so on). The dashboard sums only the realistic figures, and
+lists entries without one as "not assessed".
+
+Geography is reported as verified only when an affirmative signal is found
+(federal program, your state named, rural focus). A grant that merely lacks a
+disqualifying keyword still passes, but is marked "unver." and scores half the
+geographic points.
+
 ## Scheduling
 
 `cron_run.sh` shows a cron line for a nightly `--offline` run.

@@ -25,8 +25,17 @@ class Grant:
     calendar_status: str = "Not Scheduled"
     calendar_event_id: Optional[str] = None
     geographic_eligible: bool = True
+    # True only when an affirmative eligibility signal was found. The geographic
+    # check also passes grants that merely lack a disqualifying keyword, which is
+    # NOT evidence of eligibility — keep the two distinguishable.
+    geo_verified: bool = False
     exclusion_flagged: bool = False
     exclusion_reason: str = ""
+    # Defensible award to THIS applicant, in USD. Distinct from estimated_value,
+    # which often carries a program's pool size or maximum award and must never
+    # be summed. None = not assessed; 0 = no realistic cash (see the reason).
+    realistic_award_usd: Optional[int] = None
+    award_blocked_reason: str = ""
     # ── Entity targeting ─────────────────────────────────
     entity_target: str = "both"          # for_profit | nonprofit | both
     # ── Application readiness / next-cycle tracking ──────
